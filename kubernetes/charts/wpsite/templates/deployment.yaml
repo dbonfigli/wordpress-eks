@@ -13,7 +13,7 @@ spec:
       maxUnavailable: 1
     type: RollingUpdate
   #  type: Recreate
-  replicas: 3
+  replicas: {{.Values.WPPods.replicas}}
   selector:
     matchLabels:
       run: {{ template "application.fullname" . }}

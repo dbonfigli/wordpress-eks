@@ -9,6 +9,7 @@ WPPods:
   WPDockerImage: wpimage:latest
   # storage class defined for efs provisioner
   efsStorageClassName: aws-efs
+  replicas: 3
 
 ingress:
   scheme: internet-facing
