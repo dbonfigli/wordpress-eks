@@ -5,7 +5,7 @@ This dockerfile create an ubuntu based docker image with nginx + php-fpm and a w
 To create the image first move your wordpress files in a directory called "wordpress" at the root of this directory (if you don't have a custom wordpress installation, download it with ```wget https://wordpress.org/latest.zip && unzip latest.zip```), then create the image with:
 
 ```bash
-docker build -t wpdocker:0.2 .
+docker build -t mywordpress:0.2 .
 ```
 
 This image does not take env variables, if you want to change wordpress config you should mount volumes with your custom config files.
