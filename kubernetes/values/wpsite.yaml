@@ -18,7 +18,7 @@ wordpress:
   wphome: *wpurl #this is what will be in WP_WPHOME
   salt: "~obO}&o!u4iTy= tfB.7rYTza`:davZ/Or#Pu`;K78(.pY7<]7CxD9t}u%+yB:L"
   unattendedInstallation:
-    enabled: false #enable this to automatically initialize wordpress db, after that you can disable it
+    enabled: true #enable this to automatically initialize wordpress db, after that you can disable it
     title: "my fantastic wp site"
     adminUsername: admin
     adminPassword: adminpsw13apr
