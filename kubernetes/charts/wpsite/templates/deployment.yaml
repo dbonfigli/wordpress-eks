@@ -1,0 +1,68 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    run: {{ template "application.fullname" . }}-deployment
+  name: {{ template "application.fullname" . }}-deployment
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  #  type: Recreate
+  replicas: 3
+  selector:
+    matchLabels:
+      run: {{ template "application.fullname" . }}
+  template:
+    metadata:
+      labels:
+        run: {{ template "application.fullname" . }}
+    spec:
+      volumes:
+      - name: wp-config
+        secret:
+          secretName: {{ template "application.fullname" . }}-wp-config
+      - name: wp-uploads
+        persistentVolumeClaim:
+          claimName: {{ template "application.fullname" . }}-wp-uploads-pvc
+        # or directly use nfs with:
+        # - name: wp-uploads
+        #   nfs:
+        #     server: <efs_file_system_id>.efs.<aws_region>.amazonaws.com
+        #     path: /
+      containers:
+      -
+        name: {{ template "application.fullname" . }}
+        image: {{.Values.WPPods.WPDockerImage}}
+        volumeMounts:
+        - name: wp-config
+          mountPath: "/var/www/wordpress/wp-config.php"
+          subPath: wp-config.php
+          readOnly: true
+        - name: wp-uploads
+          mountPath: "/var/www/wordpress/wp-content/uploads"
+        resources:
+          limits:
+            cpu: {{.Values.WPPods.cpuLimits}}
+            memory: {{.Values.WPPods.memoryLimits}}
+          requests:
+            cpu: {{.Values.WPPods.cpuRequests}}
+            memory: {{.Values.WPPods.memoryRequests}}
+        livenessProbe:
+          timeoutSeconds: 5
+          httpGet:
+            path: /php-ping
+            port: 80
+          failureThreshold: 5
+          periodSeconds: 10
+        readinessProbe:
+          timeoutSeconds: 10
+          httpGet:
+            path: /wp-login.php
+            port: 80
+          failureThreshold: 5
+          periodSeconds: 30

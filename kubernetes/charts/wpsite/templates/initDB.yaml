@@ -1,0 +1,43 @@
+{{- if .Values.wordpress.unattendedInstallation.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "application.fullname" . }}-initdb-job
+spec:
+  activeDeadlineSeconds: 300
+  backoffLimit: 100
+  completions: 1
+  template:
+    spec:
+      volumes:
+      - name: wp-config
+        secret:
+          secretName: {{ template "application.fullname" . }}-wp-config
+      containers:
+      - name: initdb
+        image: {{.Values.WPPods.WPDockerImage}}
+        volumeMounts:
+        - name: wp-config
+          mountPath: "/var/www/wordpress/wp-config.php"
+          subPath: wp-config.php
+          readOnly: true
+        command:
+        - /bin/bash
+        - -c
+        - "while true; do wp core install --allow-root --path='/var/www/wordpress' --url='{{ .Values.wordpress.siteurl }}' --title='{{ .Values.wordpress.unattendedInstallation.title }}' --admin_user='{{ .Values.wordpress.unattendedInstallation.adminUsername }}' --admin_password='{{ .Values.wordpress.unattendedInstallation.adminPassword }}' --admin_email='{{ .Values.wordpress.unattendedInstallation.adminEmail }}' && exit 0 || sleep 10; done"
+
+
+        # - wp
+        # - core
+        # - install
+        # - --allow-root
+        # - --path='/var/www/wordpress'
+        # - --url='{{ .Values.wordpress.siteurl }}'
+        # - --title='{{ .Values.wordpress.unattendedInstallation.title }}'
+        # - --admin_user='{{ .Values.wordpress.unattendedInstallation.adminUsername }}'
+        # - --admin_password='{{ .Values.wordpress.unattendedInstallation.adminPassword }}'
+        # - --admin_email='{{ .Values.wordpress.unattendedInstallation.adminEmail }}'
+      restartPolicy: Never
+{{- end }}
+
+

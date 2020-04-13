@@ -1,0 +1,12 @@
+apiVersion: v2
+name: wpsite
+description: generic helm template for a wordpress site
+type: application
+version: 1
+appVersion: 1
+
+dependencies:
+- name: mariadb-galera
+  repository: https://charts.bitnami.com/bitnami
+  version: 1.1.0
+  condition: mariadb-galera.enabled

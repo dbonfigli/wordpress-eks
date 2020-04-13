@@ -1,0 +1,66 @@
+
+WPPods:
+  WPDockerImage: 00000000000.dkr.ecr.eu-west-1.amazonaws.com/mywordpress:0.8
+  efsStorageClassName: aws-efs
+
+ingress:
+  scheme: internet-facing
+  dns:
+    enabled: true
+    name: mywordpress.test.com
+  https:
+    enabled: true
+    certificateArn: arn:aws:acm:eu-west-1:00000000000:certificate/xxxxxxxxx-xxxxx-xxx-xxxxx-xxxxxxxxxxxxx
+
+wordpress:
+  siteurl: &wpurl https://mywordpress.test.com #this is what will be in WP_SITEURL
+  wphome: *wpurl #this is what will be in WP_WPHOME
+  salt: "~obO}&o!u4iTy= tfB.7rYTza`:davZ/Or#Pu`;K78(.pY7<]7CxD9t}u%+yB:L"
+  unattendedInstallation:
+    enabled: false #enable this to automatically initialize wordpress db, after that you can disable it
+    title: "my fantastic wp site"
+    adminUsername: admin
+    adminPassword: adminpsw13apr
+    adminEmail: admin@admin.com
+
+database:
+  name: &dbname wordpress
+  username: &username wordpress
+  password: &password dbpasswordsecret
+  host: mywpsite-mariadb-galera #if you create mariadb-galera in this chart, the service will be of the format: RELEASE-NAME-mariadb-galera
+
+mariadb-galera:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    enabled: true
+    size: 8Gi
+  rootUser:
+    forcePassword: true
+    password: "supersecretroot123"
+  db:
+    user: *username
+    password: *password
+    name: *dbname
+    forcePassword: true
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 4000Mi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  podLabels:
+    affinityTag: mywpsite-mariadb-node
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 10
+        podAffinityTerm:
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+          labelSelector:
+            matchExpressions:
+            - key: affinityTag
+              operator: In
+              values:
+              - mywpsite-mariadb-node

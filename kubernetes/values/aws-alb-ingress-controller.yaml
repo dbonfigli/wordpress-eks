@@ -1,0 +1,13 @@
+clusterName: wpsite-development-wpsite
+awsRegion: eu-west-1
+awsVpcID: vpc-00000000
+rbac:
+  serviceAccountAnnotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::00000000000:role/wpsite-development-wpsite-EKSalbIngressControllerIamRole
+resources:
+  limits:
+   cpu: 200m
+   memory: 200Mi
+  requests:
+   cpu: 5m
+   memory: 20Mi

@@ -1,0 +1,17 @@
+efsProvisioner:
+  efsFileSystemId: fs-00000000
+  awsRegion: eu-west-1
+  path: /eksvolumes
+  provisionerName: aws.com/aws-efs
+  storageClass:
+    name: aws-efs
+    gidAllocate:
+      enabled: false
+
+resources:
+  limits:
+   cpu: 200m
+   memory: 200Mi
+  requests:
+   cpu: 5m
+   memory: 20Mi

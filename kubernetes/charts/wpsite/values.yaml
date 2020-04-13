@@ -1,0 +1,81 @@
+
+WPPods:
+  # limits and requests for wordpress pods
+  cpuLimits: 1500m
+  memoryLimits: 4000Mi
+  cpuRequests: 200m
+  memoryRequests: 200Mi
+  # image to use
+  WPDockerImage: wpimage:latest
+  # storage class defined for efs provisioner
+  efsStorageClassName: aws-efs
+
+ingress:
+  scheme: internet-facing
+  dns:
+    # enable dns record creation when creating ingress
+    enabled: false
+    name: www.test.it
+  https:
+    # you can enabled https, if so define an acm certificate to use
+    enabled: false
+    certificateArn: <cert_arn>
+
+wordpress:
+   #this is what will be in WP_SITEURL
+  siteurl: &wpurl siteurl
+   #this is what will be in WP_WPHOME
+  wphome: *wpurl
+  # random values to be used as salts, like the ones from https://api.wordpress.org/secret-key/1.1/salt/
+  salt: "random values"
+  unattendedInstallation:
+     #if enabled, a job will be run to initialize the wordpress database, with title and admin user
+    enabled: true
+    title: title
+    adminUsername: admin
+    adminPassword: adminpsw
+    adminEmail: admin@admin.com
+
+# this values are used to configure wp-settings.php
+database:
+  name: &dbname dbname
+  username: &username dbusername
+  password: &password secret
+  host: dbhost-or-service #if you create mariadb-galera in this chart, the service will be of the format: RELEASE-NAME-mariadb-galera
+
+# this are valued used for the db backend, see values at https://github.com/bitnami/charts/tree/master/bitnami/mariadb-galera
+mariadb-galera:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    enabled: false
+    size: 8Gi
+  rootUser:
+    forcePassword: true
+    password: "supersecret"
+  db:
+    user: *username
+    password: *password
+    name: *dbname
+    forcePassword: true
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 4000Mi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  podLabels:
+    affinityTag: mywpsite-mariadb-node
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 10
+        podAffinityTerm:
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+          labelSelector:
+            matchExpressions:
+            - key: affinityTag
+              operator: In
+              values:
+              - mywpsite-mariadb-node

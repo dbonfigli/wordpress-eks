@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "application.fullname" . }}-wp-uploads-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: {{.Values.WPPods.efsStorageClassName}}
+spec:
+  storageClassName: {{.Values.WPPods.efsStorageClassName}}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Mi

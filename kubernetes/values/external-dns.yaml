@@ -1,0 +1,12 @@
+provider: aws
+policy: sync
+rbac:
+  serviceAccountAnnotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::00000000000:role/wpsite-development-wpsite-EKSalbIngressExternalDNSIamRole
+resources:
+  limits:
+   cpu: 200m
+   memory: 200Mi
+  requests:
+   cpu: 5m
+   memory: 20Mi
